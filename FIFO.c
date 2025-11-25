@@ -11,8 +11,16 @@ typedef struct{
     int used[MAXLEN];
 
 }memory;
+
 memory* memory_init(int n){
-   // TO-DO
+    // initialize memory and return pointer
+   memory* m;
+   m = malloc(sizeof(memory));
+   m->pages_num = n;
+   m->curr = 0;
+   m->faults = 0;
+
+   return m;
 }
 
 int search_process(memory* m, int process);
@@ -21,16 +29,52 @@ void display_pages(memory* m);
 int memory_FIFO(int num);
 
 int search_process(memory* m, int process){
-    // TO-DO
+    // Search for if the process exists in memory
+
+    int num = m->pages_num;
+    for(int i = 0; i < num; i++){
+        if(m->pages[i] == process){
+            return i;
+        }
+    }
+    return -1;
 }
 
 
 void add_process(memory* m, int process){
-   // TO-DO
+   // Check if process is already in memory
+
+   if(search_process(m, process) >= 0){
+        printf("%02d     ", process);
+        display_pages(m);
+        printf("\n");
+        return;
+   }
+
+   m->pages[m->curr] = process;
+   if (m->used[m->curr] == 1){
+        m->faults ++;
+        printf("%02d F   ", process);
+        display_pages(m);
+        printf("\n");
+        m->curr = (m->curr+1)%m->pages_num;
+        return;
+   }
+
+   m->used[m->curr] = 1;
+   m->curr = (m->curr+1)%m->pages_num;
+   printf("%02d     ", process);
+   display_pages(m);
+   printf("\n");
 }
 
 void display_pages(memory* m){
-   // TO- DO
+    int num = m->pages_num;
+    for(int i = 0; i < num; i ++){
+        if(m->pages[i]){
+            printf("%02d ", m->pages[i]);
+        }
+   }
 }
 
 int memory_FIFO(int num){
@@ -57,7 +101,6 @@ int main(){
 
     scanf("%d", &num);
     scanf("%s", algo);
-    //printf("%s", algo);
 
     if(strcmp(algo, "FIFO") == 0)
         memory_FIFO(num);
